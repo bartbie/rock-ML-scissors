@@ -11,9 +11,8 @@ import keras.metrics as metrics
 
 import itertools as it
 from collections.abc import Iterable
+from pathlib import Path
 from typing import Callable, TypeVar
-
-OUTPUT_FILE = "RPS.h5"
 
 
 T = TypeVar('T')
@@ -74,19 +73,66 @@ def test(model: Model, x, y, verbose: bool = False) -> tuple[NDArray, bool]:
     return prediction_rounded, (prediction_rounded==y).all()
 
 
-def main():
-    print("Compiling the model...")
+def __run(file: Path, verbose: bool = False, comments: bool = False):
+    def inform(msg: str):
+        if comments:
+            print(msg)
+    inform("Compiling the model...")
     model = compile_model()
-    print("getting the training data...")
+    inform("getting the training data...")
     x, y = training_data()
-    print("Training the model...")
-    train(model, x, y, epochs=300)
-    print("Testing the model...")
+    inform("Training the model...")
+    train(model, x, y, epochs=300, verbose=verbose)
+    inform("Testing the model...")
     test_results = test(model, x, y)
-    print(f"Tests' results same as results from training data: {test_results[1]}")
-    print(f"Saving the model to {OUTPUT_FILE}")
-    model.save(OUTPUT_FILE)
+    inform(f"Tests' results same as results from training data: {test_results[1]}")
+    inform(f"Saving the model to {file}")
+    model.save(file)
 
+
+def run(file: Path, verbose: bool = False):
+    __run(file, verbose=verbose)
+
+
+def __cli_main__():
+    import argparse
+    import sys
+    from dataclasses import dataclass
+    @dataclass(frozen=True)
+    class Args:
+        output: Path
+        verbose: bool
+
+        @classmethod
+        def parse(cls):
+            parser = argparse.ArgumentParser(description="Rock Paper Scissors Model generator; model takes input of [Paper, Rock, Scissors] and returns [Tie, Loss, Win]")
+            parser.add_argument(
+                "--output",
+                "-o",
+                dest="file",
+                help="Where model should be saved. Use h5 filetype (default RPS.h5)",
+                default="RPS.h5",
+                metavar="FILE",
+                type=Path,
+            )
+            parser.add_argument(
+                "--verbose",
+                "-v",
+                help="training verbosity",
+                action="store_true",
+            )
+            args = parser.parse_args()
+            args.file = args.file.resolve()
+            args = Args(output=args.file, verbose=args.verbose)
+            if args.output.suffix != ".h5":
+                print("NOT an h5 file!")
+                sys.exit()
+            return args
+
+    args = Args.parse()
+    __run(args.output, verbose=args.verbose, comments=True)
+    
+    
 
 if __name__ == "__main__":
-    main()
+    __cli_main__()

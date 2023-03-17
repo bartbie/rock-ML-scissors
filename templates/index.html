@@ -9,13 +9,25 @@
 
 
 <body>
-    <h2>NAND gate predictor, made with Keras, Tensorflow</h2>
+    <h2>Rock Paper Scissors outcome predictor, made with Keras, Tensorflow</h2>
     <form method='post'>
-        Input A: <input type='text' name='in1' placeholder='1 or 0' /></br>
-        Input B: <input type='text' name='in2' placeholder='1 or 0' /></br>
+        <label for="player1">Your choice:</label>
+        <select name="player1" id="player1" required>
+            <option value="" selected disabled hidden>--Please choose an option--</option>
+            <option value="rock">rock</option>
+            <option value="paper">paper</option>
+            <option value="Scissors">scissors</option>
+        </select>
+        <label for="player2">Opponent's choice:</label>
+        <select name="player2" id="player2" required>
+            <option value="" selected disabled hidden>--Please choose an option--</option>
+            <option value="rock">rock</option>
+            <option value="paper">paper</option>
+            <option value="Scissors">scissors</option>
+        </select>
         <input type='submit' />
     </form>
-    <h3>The result is {{ result }}</h3>
+    <h3>{{ result }}</h3>
 </body>
 
 </html>
